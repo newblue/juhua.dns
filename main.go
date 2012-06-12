@@ -22,6 +22,7 @@ var (
         LOG *log.Logger
         PROTO string
         TIMEOUT time.Duration
+        DEBUG bool
         TCP_REGEX *regexp.Regexp
 
         DEFAULT_SERVERS = []string {    "8.8.8.8",
@@ -42,6 +43,7 @@ func init () {
     var proto, pattern string
     var timeout int
 
+    flag.BoolVar (&DEBUG, "d", false, "Enable debug mode")
     flag.StringVar (&proto, "p", "", "Which proto use for lookup domain")
     flag.IntVar (&timeout, "t", 0, "How many seconds to timeout")
     flag.StringVar (&pattern, "r", "", "Regex pattern for match domain to use tcp proto")
@@ -70,7 +72,7 @@ func init () {
         }
     }
 
-
+    LOG.Printf ("Use %s proto to lookup domain", PROTO)
     LOG.Printf ("Timeout duration: %s", TIMEOUT)
     if TCP_REGEX != nil {
         LOG.Printf ("Compiling tcp regex pattern [%s]", TCP_REGEX)
@@ -99,10 +101,13 @@ func ( p Proxy ) ServeDNS (w dns.ResponseWriter, r *dns.Msg) {
     c.WriteTimeout = TIMEOUT
 
     if rs, err := c.Exchange (r, p.Server()); err == nil {
+        if DEBUG {
+            LOG.Printf ("DEBUG %s\n%v", w.RemoteAddr(), rs)
+        }
         w.Write (rs)
     } else {
         dns.Refused (w, r)
-        LOG.Printf ("%s %s", w.RemoteAddr (), err)
+        LOG.Printf ("%s %s", w.RemoteAddr(), err)
     }
 }
 
