@@ -19,8 +19,15 @@ Default load all of above severs.
 
 Install it via golang tools and start proxy
 
+> go get github.com/newblue/juhua.dns
+
+run by root
+
+> sudo $GOROOT/bin/juhua.dns
+
 Change your /etc/resolve.conf
 
 > mv /etc/resolve.conf /etc/resolve.conf.bak
+>
 > echo "nameserver 127.0.0.1" > /etc/resolve.conf
 
